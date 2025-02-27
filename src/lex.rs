@@ -1,24 +1,19 @@
-use miette::{Error, WrapErr};
+use miette::{Error, LabeledSpan, WrapErr};
 
 use std::fmt;
 
-struct Lexer<'de> {
-    source: &'de str,
+pub struct Lexer<'de> {
+    source_code: &'de str,
     index: usize,
 }
 
 impl<'de> Lexer<'de> {
     #[inline]
-    fn from(input: &'de str) -> Self {
+    pub fn from(input: &'de str) -> Self {
         Self {
-            source: input,
+            source_code: input,
             index: 0,
         }
-    }
-
-    #[inline]
-    fn rest(&self) -> &'de str {
-        &self.source[self.index..]
     }
 }
 
@@ -40,7 +35,6 @@ macro_rules! define_tokens {
                 }
             }
         }
-
     };
 }
 
@@ -61,8 +55,8 @@ impl<'de> Iterator for Lexer<'de> {
     type Item = Result<Token, Error>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let c = self.rest().chars().next()?;
-        self.index += 1;
+        let c = &self.source_code[self.index..].chars().next()?;
+        self.index += c.len_utf8();
         match c {
             '(' => Some(Ok(Token::LeftParenthesis)),
             ')' => Some(Ok(Token::RightParenthesis)),
@@ -74,13 +68,19 @@ impl<'de> Iterator for Lexer<'de> {
             '-' => Some(Ok(Token::Minus)),
             '*' => Some(Ok(Token::Star)),
             '/' => Some(Ok(Token::Slash)),
-            _ => None,
+            _ => Some(Err(miette::miette! {labels = vec![
+                LabeledSpan::at(self.index - c.len_utf8()..self.index, "This character"),
+            ],
+                "Unrecognised token",
+            }
+            .with_source_code(self.source_code.to_string()))),
         }
     }
 }
 
 mod tests {
-    use super::*;
+
+    use super::{Lexer, Token};
 
     #[test]
     fn test_single_tokens() {

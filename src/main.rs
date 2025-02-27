@@ -1,14 +1,39 @@
 mod lex;
 
-use std::fs::File;
-use std::io::Read;
+use std::fs;
 use std::path::PathBuf;
 
-fn main() {
-    let path = PathBuf::from("main.vb");
-    let mut file = File::open(path).unwrap();
-    let mut content = String::new();
-    file.read_to_string(&mut content).unwrap();
+use clap::{Parser, Subcommand};
+use miette::{IntoDiagnostic, WrapErr};
 
-    println!("{content}");
+use lex::Lexer;
+
+#[derive(Parser, Debug)]
+#[command(version, about, long_about=None)]
+struct Args {
+    #[command(subcommand)]
+    command: Command,
+}
+
+#[derive(Subcommand, Debug)]
+enum Command {
+    Tokenize { filepath: PathBuf },
+}
+
+fn main() -> miette::Result<()> {
+    let args = Args::parse();
+    match args.command {
+        Command::Tokenize { filepath } => {
+            let source_code = fs::read_to_string(&filepath)
+                .into_diagnostic()
+                .wrap_err_with(|| format!("Failed to read file {}", filepath.display()))?;
+
+            let lexer = Lexer::from(&source_code);
+            for token in lexer {
+                let token = token?;
+                println!("{}", token);
+            }
+        }
+    }
+    Ok(())
 }
