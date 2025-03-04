@@ -1,8 +1,11 @@
-[package]
-name = "vibec"
-version = "0.1.0"
-edition = "2024"
+[workspace]
+members = [
+	"vibec",
+	"vibec_lexer",
+]
 
-[dependencies]
-clap = { version = "4.5.31", features=["derive"] }
+
+resolver = "2"
+
+[workspace.dependencies]
 miette = { version = "7.5.0", features = ["fancy"] }

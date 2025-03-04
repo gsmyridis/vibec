@@ -1,12 +1,10 @@
-mod lex;
-
 use std::fs;
 use std::path::PathBuf;
 
 use clap::{Parser, Subcommand};
 use miette::{IntoDiagnostic, WrapErr};
 
-use lex::Lexer;
+// use vibec_lexer::Lexer;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about=None)]
@@ -28,11 +26,11 @@ fn main() -> miette::Result<()> {
                 .into_diagnostic()
                 .wrap_err_with(|| format!("Failed to read file {}", filepath.display()))?;
 
-            let lexer = Lexer::from(&source_code);
-            for token in lexer {
-                let token = token?;
-                println!("{}", token);
-            }
+            // let lexer = Lexer::from(&source_code);
+            // for token in lexer {
+            // let token = token?;
+            // println!("{}", token);
+            // }
         }
     }
     Ok(())

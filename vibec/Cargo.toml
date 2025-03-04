@@ -1,0 +1,11 @@
+[package]
+name = "vibec"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+clap = { version = "4.5.31", features=["derive"] }
+miette = {workspace = true}
+
+vibec_lexer = {path="../vibec_lexer/"}
+
