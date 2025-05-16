@@ -4,7 +4,7 @@ use std::path::PathBuf;
 use clap::{Parser, Subcommand};
 use miette::{IntoDiagnostic, WrapErr};
 
-use vibec_lexer::tokenize;
+use lexer::tokenize;
 
 #[derive(Parser, Debug)]
 #[command(version, about, long_about=None)]

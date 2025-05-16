@@ -1,5 +1,3 @@
-use miette::{Error, LabeledSpan};
-
 mod token;
 use token::{
     Base,
@@ -49,7 +47,7 @@ pub fn is_ident(string: &str) -> bool {
 pub fn tokenize(input: &str) -> impl Iterator<Item = Token> {
     let mut cursor = Cursor::new(input);
     std::iter::from_fn(move || {
-        let token = cursor.next_token().unwrap();
+        let token = cursor.next_token();
         if token.kind != TokenKind::EoF {
             Some(token)
         } else {
@@ -197,10 +195,10 @@ impl<'a> Cursor<'a> {
         self.eat_decimal_digits()
     }
 
-    fn next_token(&mut self) -> Result<Token, Error> {
+    fn next_token(&mut self) -> Token {
         let first_char = match self.next_char() {
             Some(c) => c,
-            None => return Ok(Token::new(EoF, 0)),
+            None => return Token::new(EoF, 0),
         };
 
         let token_kind = match first_char {
@@ -239,10 +237,11 @@ impl<'a> Cursor<'a> {
 
         let token = Token::new(token_kind, self.position_within_token());
         self.reset_position_within_token();
-        Ok(token)
+        token
     }
 }
 
+#[cfg(test)]
 mod test {
 
     use super::Base::*;
